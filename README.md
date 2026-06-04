@@ -234,10 +234,22 @@ cd frontend && npm run build
 | 06 | [管理后台](docs/modules/06-admin.md) | 仪表盘、销售人员管理、全局数据查看 |
 | 07 | [系统日志](docs/modules/07-log.md) | 操作日志写入规范、查询接口 |
 
-### 架构文档
+### 使用手册
 
-- [Requirement.md](Requirement.md) — 完整需求规格说明书
-- [Structure.md](Structure.md) — 系统架构设计（拓扑、分层、数据库 ER、DDL、部署）
+| 文档 | 适用角色 | 说明 |
+|------|:--------:|------|
+| [顾客使用手册](docs/useage/customer.md) | 顾客 | 浏览商品、下单、购物车、订单查看 |
+| [销售人员使用手册](docs/useage/sales.md) | 销售人员 | 线下注册、线下订单、现场结付 |
+| [仓库操作员使用手册](docs/useage/warehouse.md) | 仓库操作员 | 出入库操作、货架管理、库存查看 |
+| [管理员使用手册](docs/useage/admin.md) | 管理员 | 销售管理、商品管理、全局数据 |
+| [系统使用概览](docs/useage/useage.md) | 全部 | 通用操作说明与快速入门 |
+
+### 项目文档
+
+- [Requirement.md](Requirement.md) — 完整需求规格说明书（功能模块、角色权限、非功能性需求）
+- [Structure.md](Structure.md) — 系统架构设计（拓扑、分层、数据库 ER、DDL、部署方案）
+- [todoList.md](todoList.md) — 项目任务清单与开发进度
+- [docs/prompt.md](docs/prompt.md) — Vibe Coding 主 Agent 调度指南
 
 ---
 
