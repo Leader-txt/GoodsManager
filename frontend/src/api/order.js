@@ -35,3 +35,7 @@ export function createOfflineOrder(data) {
 export function getSalesOrders(params) {
   return api.get('/orders/sales', { params });
 }
+
+export function getWarehouseOrders(params) {
+  return api.get('/orders/warehouse', { params });
+}

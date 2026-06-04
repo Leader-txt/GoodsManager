@@ -19,6 +19,7 @@ const routes = [
   { path: '/warehouse/shelves', name: 'WarehouseShelves', component: () => import('@/views/warehouse/ShelfManage.vue'), meta: { requiresAuth: true, role: ['warehouse', 'admin'] } },
   { path: '/warehouse/inventory/:productId', name: 'WarehouseInventoryDetail', component: () => import('@/views/warehouse/InventoryDetail.vue'), meta: { requiresAuth: true, role: ['warehouse', 'admin'] } },
   { path: '/warehouse/stock-in', name: 'WarehouseStockIn', component: () => import('@/views/warehouse/StockIn.vue'), meta: { requiresAuth: true, role: ['warehouse', 'admin'] } },
+  { path: '/warehouse/orders', name: 'WarehouseOrders', component: () => import('@/views/warehouse/WarehouseOrders.vue'), meta: { requiresAuth: true, role: ['warehouse', 'admin'] } },
   { path: '/warehouse/stock-out', name: 'WarehouseStockOut', component: () => import('@/views/warehouse/StockOut.vue'), meta: { requiresAuth: true, role: ['warehouse', 'admin'] } },
   { path: '/admin/dashboard', name: 'Dashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { requiresAuth: true, role: 'admin' } },
   { path: '/admin/sales', name: 'SalesManage', component: () => import('@/views/admin/SalesManage.vue'), meta: { requiresAuth: true, role: 'admin' } },

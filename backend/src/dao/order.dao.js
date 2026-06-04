@@ -182,6 +182,38 @@ const orderDao = {
     return { total, list: rows };
   },
 
+  /** 仓库操作员：待处理订单列表（默认 paid/delivering/signed，paid 优先） */
+  async findForWarehouse({ page = 1, pageSize = 10, status }, conn) {
+    const db = conn || pool;
+    const offset = (page - 1) * pageSize;
+    let conditions = [];
+    let params = [];
+
+    if (status) {
+      conditions.push('o.status = ?');
+      params.push(status);
+    } 
+    else {
+      conditions.push("o.status IN ('pending' ,'paid', 'delivering', 'signed')");
+    }
+
+    const whereClause = 'WHERE ' + conditions.join(' AND ');
+    const [[{ total }]] = await db.query(
+      `SELECT COUNT(*) as total FROM \`order\` o ${whereClause}`, params
+    );
+    const [rows] = await db.query(
+      `SELECT o.*, c.real_name as customer_name, c.phone as customer_phone
+       FROM \`order\` o JOIN customer c ON o.customer_id = c.id
+       ${whereClause}
+       ORDER BY
+         CASE o.status WHEN 'paid' THEN 0 WHEN 'delivering' THEN 1 ELSE 2 END,
+         o.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, pageSize, offset]
+    );
+    return { total, list: rows };
+  },
+
   /** 扣减库存 */
   async deductStock(productId, quantity, conn) {
     const db = conn || pool;

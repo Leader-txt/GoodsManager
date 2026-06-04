@@ -101,6 +101,21 @@ const orderController = {
       next(err);
     }
   },
+
+  /** GET /api/orders/warehouse — 仓库操作员待处理订单列表 */
+  async listWarehouseOrders(req, res, next) {
+    try {
+      const { page, pageSize, status } = req.query;
+      const result = await orderService.listForWarehouse({
+        page: parseInt(page, 10) || 1,
+        pageSize: parseInt(pageSize, 10) || 10,
+        status,
+      });
+      res.json(success(result));
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = orderController;

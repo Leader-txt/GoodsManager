@@ -38,11 +38,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { getProducts, getCategories, getBrands } from '@/api/product';
 import ProductCard from '@/components/product/ProductCard.vue';
 import Pagination from '@/components/common/Pagination.vue';
 import { useProductStore } from '@/stores/product';
 
+const route = useRoute();
 const store = useProductStore();
 const products = ref([]);
 const total = ref(0);
@@ -107,6 +109,10 @@ function changePage(page) {
 }
 
 onMounted(async () => {
+  // 读取 URL 查询参数中的分类筛选
+  if (route.query.category) {
+    filters.value.category = route.query.category;
+  }
   try {
     const res = await getCategories();
     if (res.code === 200) categories.value = res.data;

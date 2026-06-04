@@ -19,6 +19,7 @@
           <template v-if="auth.role === 'warehouse' || auth.role === 'admin'">
             <router-link to="/warehouse">库存管理</router-link>
             <router-link to="/warehouse/shelves">货架管理</router-link>
+            <router-link to="/warehouse/orders">待出库订单</router-link>
           </template>
           <router-link to="/profile">个人信息</router-link>
           <router-link v-if="auth.role === 'admin'" to="/admin/dashboard">管理后台</router-link>

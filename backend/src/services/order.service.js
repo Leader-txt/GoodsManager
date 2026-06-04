@@ -269,6 +269,11 @@ const orderService = {
     }
   },
 
+  /** 仓库操作员：待处理订单列表 */
+  async listForWarehouse({ page, pageSize, status }) {
+    return orderDao.findForWarehouse({ page, pageSize, status });
+  },
+
   /** 超时取消 */
   async cancelExpiredOrders() {
     const expiredOrders = await orderDao.findExpiredPending(config.orderTimeoutHours);
