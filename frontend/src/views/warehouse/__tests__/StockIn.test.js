@@ -32,14 +32,15 @@ describe('StockIn.vue', () => {
 
   it('renders form fields', () => {
     const wrapper = mount(StockIn, { global: { plugins: [router] } });
-    expect(wrapper.find('input[placeholder*="商品名称"]').exists()).toBe(true);
-    expect(wrapper.find('select').exists()).toBe(true);
-    expect(wrapper.find('input[type="number"]').exists()).toBe(true);
+    expect(wrapper.text()).toContain('商品');
+    expect(wrapper.text()).toContain('目标货架');
+    expect(wrapper.text()).toContain('入库数量');
   });
 
   it('shows error when submitting without product', async () => {
     const wrapper = mount(StockIn, { global: { plugins: [router] } });
-    await wrapper.find('.btn-submit').trigger('click');
-    expect(wrapper.find('.err-msg').exists()).toBe(true);
+    await wrapper.find('.el-button--primary').trigger('click');
+    await wrapper.vm.$nextTick();
+    expect(wrapper.text()).toContain('请选择商品');
   });
 });

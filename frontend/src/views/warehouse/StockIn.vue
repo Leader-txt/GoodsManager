@@ -1,42 +1,41 @@
 <template>
-  <div class="stock-in-page"><h2>商品入库</h2>
-    <div class="form-card">
-      <div v-if="errMsg" class="err-msg">{{ errMsg }}</div>
-      <div v-if="successMsg" class="success-msg">{{ successMsg }}</div>
+  <div class="stock-in-page">
+    <h2>商品入库</h2>
+    <el-card class="form-card">
+      <el-alert v-if="errMsg" :title="errMsg" type="error" show-icon :closable="false" style="margin-bottom: 16px" />
+      <el-alert v-if="successMsg" :title="successMsg" type="success" show-icon :closable="false" style="margin-bottom: 16px" />
 
-      <div class="form-group">
-        <label>商品 <span class="required">*</span></label>
-        <div class="search-wrapper">
-          <input v-model="productKeyword" @input="onProductSearch" type="text" placeholder="输入商品名称搜索..." class="search-input" />
-          <div v-if="productResults.length && showResults" class="dropdown">
-            <div v-for="p in productResults" :key="p.id" class="dropdown-item" @click="selectProduct(p)">
-              {{ p.name }} ({{ p.category }}) — {{ formatPrice(p.price) }}
-            </div>
-          </div>
-        </div>
-        <div v-if="selectedProduct" class="selected-tag">{{ selectedProduct.name }}</div>
-      </div>
-
-      <div class="form-group">
-        <label>目标货架 <span class="required">*</span></label>
-        <select v-model="form.shelfId" class="select-full">
-          <option value="">请选择货架</option>
-          <option v-for="s in shelves" :key="s.id" :value="s.id">{{ s.shelf_code }} — {{ s.description }}</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>入库数量 <span class="required">*</span></label>
-        <input v-model.number="form.quantity" type="number" min="1" placeholder="请输入入库数量" class="input-full" />
-      </div>
-
-      <div class="form-group">
-        <label>备注</label>
-        <input v-model="form.remark" type="text" placeholder="如：总部供货（选填）" class="input-full" />
-      </div>
-
-      <button @click="handleSubmit" :disabled="submitting" class="btn-submit">{{ submitting ? '提交中...' : '确认入库' }}</button>
-    </div>
+      <el-form :model="form" label-width="100px">
+        <el-form-item label="商品" required>
+          <el-select
+            v-model="selectedProductId"
+            filterable
+            remote
+            :remote-method="onProductSearch"
+            :loading="prodSearching"
+            placeholder="输入商品名称搜索..."
+            style="width: 100%"
+            @change="onProductSelect"
+          >
+            <el-option v-for="p in productResults" :key="p.id" :label="`${p.name} (${p.category}) — ${formatPrice(p.price)}`" :value="p.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="目标货架" required>
+          <el-select v-model="form.shelfId" placeholder="请选择货架" style="width: 100%">
+            <el-option v-for="s in shelves" :key="s.id" :label="`${s.shelf_code} — ${s.description}`" :value="s.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="入库数量" required>
+          <el-input-number v-model="form.quantity" :min="1" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="form.remark" placeholder="如：总部供货（选填）" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSubmit" :loading="submitting" style="width: 100%">确认入库</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -54,30 +53,27 @@ const successMsg = ref('');
 const submitting = ref(false);
 const form = reactive({ shelfId: '', quantity: 1, remark: '' });
 const shelves = ref([]);
+const selectedProductId = ref(null);
 const selectedProduct = ref(null);
-const productKeyword = ref('');
 const productResults = ref([]);
-const showResults = ref(false);
+const prodSearching = ref(false);
 let searchTimer = null;
 
-function onProductSearch() {
+function onProductSearch(query) {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(async () => {
-    if (!productKeyword.value.trim()) { productResults.value = []; showResults.value = false; return; }
+    if (!query.trim()) { productResults.value = []; return; }
+    prodSearching.value = true;
     try {
-      const res = await getProducts({ keyword: productKeyword.value.trim(), pageSize: 10 });
-      if (res.code === 200) {
-        productResults.value = res.data.list;
-        showResults.value = true;
-      }
+      const res = await getProducts({ keyword: query.trim(), pageSize: 10 });
+      if (res.code === 200) productResults.value = res.data.list;
     } catch { /* ignore */ }
+    finally { prodSearching.value = false; }
   }, 300);
 }
 
-function selectProduct(p) {
-  selectedProduct.value = p;
-  productKeyword.value = p.name;
-  showResults.value = false;
+function onProductSelect(val) {
+  selectedProduct.value = productResults.value.find(p => p.id === val);
 }
 
 async function handleSubmit() {
@@ -90,10 +86,7 @@ async function handleSubmit() {
   submitting.value = true;
   try {
     const res = await stockIn({
-      productId: selectedProduct.value.id,
-      shelfId: form.shelfId,
-      quantity: form.quantity,
-      remark: form.remark,
+      productId: selectedProduct.value.id, shelfId: form.shelfId, quantity: form.quantity, remark: form.remark,
     });
     if (res.code === 200) {
       successMsg.value = '入库成功！';
@@ -114,20 +107,4 @@ onMounted(async () => {
 <style scoped>
 .stock-in-page { max-width: 600px; margin: 0 auto; padding: 24px; }
 .stock-in-page h2 { margin-bottom: 20px; }
-.form-card { background: #fff; padding: 24px; border-radius: 8px; }
-.err-msg { background: #fff2f0; color: #ff4d4f; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; border: 1px solid #ffccc7; }
-.success-msg { background: #f6ffed; color: #52c41a; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; border: 1px solid #b7eb8f; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #333; }
-.required { color: #ff4d4f; }
-.search-wrapper { position: relative; }
-.search-input, .input-full, .select-full { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-.search-input:focus, .input-full:focus, .select-full:focus { border-color: #1890ff; outline: none; }
-.dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #d9d9d9; border-radius: 4px; max-height: 200px; overflow-y: auto; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
-.dropdown-item:hover { background: #e6f7ff; }
-.selected-tag { margin-top: 6px; padding: 4px 10px; background: #e6f7ff; color: #1890ff; border-radius: 4px; font-size: 13px; display: inline-block; }
-.btn-submit { width: 100%; padding: 10px; background: #1890ff; color: #fff; border: none; border-radius: 4px; font-size: 15px; margin-top: 8px; }
-.btn-submit:hover { background: #40a9ff; }
-.btn-submit:disabled { background: #ccc; }
 </style>

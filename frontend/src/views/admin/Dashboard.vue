@@ -1,26 +1,65 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" v-loading="loading">
     <h2>管理后台 — 仪表盘</h2>
-    <div v-if="loading" class="loading">加载中...</div>
-    <div v-else-if="data">
-      <div class="stat-cards">
-        <div class="stat-card"><div class="stat-num">{{ data.todayOrders }}</div><div class="stat-label">今日订单</div></div>
-        <div class="stat-card"><div class="stat-num">{{ data.pendingOrders }}</div><div class="stat-label">待处理</div></div>
-        <div class="stat-card"><div class="stat-num">{{ data.outOfStock }}</div><div class="stat-label">缺货商品</div></div>
-        <div class="stat-card"><div class="stat-num">{{ data.salesCount }}</div><div class="stat-label">销售人员</div></div>
-      </div>
-      <div class="panel">
-        <h3>最近订单</h3>
-        <table class="mini-table"><thead><tr><th>订单号</th><th>顾客</th><th>金额</th><th>状态</th></tr></thead>
-          <tbody><tr v-for="o in data.recentOrders" :key="o.id"><td>{{ o.order_no }}</td><td>{{ o.customer_name }}</td><td>{{ formatPrice(o.total_amount) }}</td><td><OrderStatusTag :status="o.status" /></td></tr></tbody>
-        </table>
-      </div>
-      <div class="panel">
-        <h3>最近出入库</h3>
-        <table class="mini-table"><thead><tr><th>时间</th><th>类型</th><th>商品</th><th>数量</th></tr></thead>
-          <tbody><tr v-for="l in data.recentLogs" :key="l.id"><td>{{ formatDate(l.created_at) }}</td><td>{{ l.type === 'in' ? '入库' : '出库' }}</td><td>{{ l.product_name }}</td><td>{{ l.quantity }}</td></tr></tbody>
-        </table>
-      </div>
+    <div v-if="data">
+      <el-row :gutter="16" style="margin-bottom: 24px">
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div class="stat-card">
+              <div class="stat-num">{{ data.todayOrders }}</div>
+              <div class="stat-label">今日订单</div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div class="stat-card">
+              <div class="stat-num">{{ data.pendingOrders }}</div>
+              <div class="stat-label">待处理</div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div class="stat-card">
+              <div class="stat-num">{{ data.outOfStock }}</div>
+              <div class="stat-label">缺货商品</div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div class="stat-card">
+              <div class="stat-num">{{ data.salesCount }}</div>
+              <div class="stat-label">销售人员</div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-card class="panel">
+        <template #header><h3>最近订单</h3></template>
+        <el-table :data="data.recentOrders" size="small" style="width: 100%">
+          <el-table-column prop="order_no" label="订单号" />
+          <el-table-column prop="customer_name" label="顾客" />
+          <el-table-column label="金额" :formatter="(r) => formatPrice(r.total_amount)" />
+          <el-table-column label="状态">
+            <template #default="{ row }">
+              <el-tag :type="row.status === 'pending' ? 'warning' : row.status === 'paid' ? 'primary' : row.status === 'cancelled' ? 'info' : row.status === 'signed' ? 'success' : 'primary'" size="small">{{ formatStatus(row.status) }}</el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+
+      <el-card class="panel">
+        <template #header><h3>最近出入库</h3></template>
+        <el-table :data="data.recentLogs" size="small" style="width: 100%">
+          <el-table-column label="时间" :formatter="(r) => formatDate(r.created_at)" />
+          <el-table-column label="类型"><template #default="{ row }">{{ row.type === 'in' ? '入库' : '出库' }}</template></el-table-column>
+          <el-table-column prop="product_name" label="商品" />
+          <el-table-column prop="quantity" label="数量" />
+        </el-table>
+      </el-card>
     </div>
   </div>
 </template>
@@ -28,8 +67,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getDashboard } from '@/api/admin';
-import OrderStatusTag from '@/components/order/OrderStatusTag.vue';
-import { formatPrice, formatDate } from '@/utils/format';
+import { formatPrice, formatDate, getOrderStatusText } from '@/utils/format';
+
+function formatStatus(s) { return getOrderStatusText(s); }
 
 const data = ref(null);
 const loading = ref(true);
@@ -41,14 +81,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.stat-card { background: #fff; padding: 24px; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.dashboard h2 { margin-bottom: 20px; }
+.stat-card { text-align: center; padding: 12px 0; }
 .stat-num { font-size: 32px; font-weight: bold; color: #1890ff; }
 .stat-label { font-size: 14px; color: #999; margin-top: 4px; }
-.panel { background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
-.panel h3 { margin-bottom: 12px; font-size: 15px; }
-.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.mini-table th, .mini-table td { padding: 8px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-.mini-table th { color: #999; }
-.loading { text-align: center; padding: 60px; color: #999; }
+.panel { margin-bottom: 16px; }
+.panel h3 { margin: 0; font-size: 15px; }
 </style>

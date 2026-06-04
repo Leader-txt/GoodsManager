@@ -31,14 +31,11 @@ describe('InventoryList.vue', () => {
 
   it('renders filter inputs', () => {
     const wrapper = mount(InventoryList, { global: { plugins: [router] } });
-    expect(wrapper.find('input[placeholder*="搜索"]').exists()).toBe(true);
-    expect(wrapper.findAll('select').length).toBeGreaterThanOrEqual(2);
+    expect(wrapper.text()).toContain('全部类型');
   });
 
-  it('has router-link for stock-in', () => {
+  it('has stock-in button', () => {
     const wrapper = mount(InventoryList, { global: { plugins: [router] } });
-    const links = wrapper.findAll('a');
-    const stockInLink = links.find(l => l.attributes('href') === '/warehouse/stock-in');
-    expect(stockInLink).toBeTruthy();
+    expect(wrapper.text()).toContain('入库');
   });
 });

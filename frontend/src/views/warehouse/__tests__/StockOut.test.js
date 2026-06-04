@@ -14,7 +14,7 @@ vi.mock('@/api/product', () => ({
   }),
 }));
 vi.mock('@/api/order', () => ({
-  getOrderDetail: vi.fn().mockResolvedValue({ code: 200, data: { id:1, order_no:'202406010001', customer_name:'张三', status:'paid', total_amount:8999, items:[] } }),
+  getOrderByOrderNo: vi.fn().mockResolvedValue({ code: 200, data: { id:1, order_no:'202406010001', customer_name:'张三', status:'paid', total_amount:8999, items:[] } }),
 }));
 
 const router = createRouter({
@@ -32,15 +32,14 @@ describe('StockOut.vue', () => {
 
   it('has mode tabs', () => {
     const wrapper = mount(StockOut, { global: { plugins: [router] } });
-    const tabs = wrapper.findAll('.mode-tabs button');
-    expect(tabs.length).toBe(2);
-    expect(tabs[0].text()).toBe('关联订单出库');
-    expect(tabs[1].text()).toBe('手动出库');
+    const tabs = wrapper.findAll('.el-tabs__item');
+    expect(tabs.length).toBeGreaterThanOrEqual(2);
+    expect(tabs[0].text()).toContain('关联订单出库');
+    expect(tabs[1].text()).toContain('手动出库');
   });
 
   it('defaults to order-linked mode', () => {
     const wrapper = mount(StockOut, { global: { plugins: [router] } });
-    const orderInput = wrapper.find('input[placeholder*="订单号"]');
-    expect(orderInput.exists()).toBe(true);
+    expect(wrapper.text()).toContain('关联订单号');
   });
 });

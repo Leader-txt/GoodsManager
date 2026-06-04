@@ -12,12 +12,6 @@ import AppHeader from '@/components/layout/AppHeader.vue';
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -30,14 +24,5 @@ body {
   margin: 0 auto;
   padding: 20px;
   min-height: calc(100vh - 60px);
-}
-
-a {
-  color: #1890ff;
-  text-decoration: none;
-}
-
-button {
-  cursor: pointer;
 }
 </style>

@@ -1,50 +1,47 @@
 <template>
-  <div class="shelf-page"><h2>货架管理</h2>
-    <button @click="openAdd" class="btn-add">+ 添加货架</button>
-
-    <div v-if="loading" class="loading">加载中...</div>
-    <div v-else>
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>货架编号</th><th>描述</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr v-for="s in shelves" :key="s.id">
-            <td>{{ s.id }}</td><td>{{ s.shelf_code }}</td><td>{{ s.description || '-' }}</td>
-            <td>
-              <button @click="openEdit(s)" class="btn-link">编辑</button>
-              <button @click="handleDelete(s.id)" class="btn-link btn-danger">删除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <Pagination :currentPage="page" :pageSize="10" :total="total" @change="p => { page = p; fetchShelves(); }" />
+  <div class="shelf-page" v-loading="loading">
+    <div class="page-header">
+      <h2>货架管理</h2>
+      <el-button type="primary" @click="openAdd">+ 添加货架</el-button>
     </div>
+
+    <el-table :data="shelves" stripe style="width: 100%">
+      <el-table-column prop="id" label="ID" width="70" />
+      <el-table-column prop="shelf_code" label="货架编号" />
+      <el-table-column label="描述"><template #default="{ row }">{{ row.description || '-' }}</template></el-table-column>
+      <el-table-column label="操作">
+        <template #default="{ row }">
+          <el-button size="small" type="primary" link @click="openEdit(row)">编辑</el-button>
+          <el-button size="small" type="danger" link @click="handleDelete(row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination :current-page="page" :page-size="10" :total="total" @current-change="p => { page = p; fetchShelves(); }" layout="total, prev, pager, next" style="margin-top: 16px; justify-content: center" />
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-box">
-        <h3>{{ editingShelf ? '编辑货架' : '添加货架' }}</h3>
-        <div v-if="errMsg" class="err-msg">{{ errMsg }}</div>
-        <div class="form-group">
-          <label>货架编号 <span class="required">*</span></label>
-          <input v-model="form.shelfCode" type="text" placeholder="如 4-1-1" />
-        </div>
-        <div class="form-group">
-          <label>描述</label>
-          <input v-model="form.description" type="text" placeholder="如 台式机区" />
-        </div>
-        <div class="modal-actions">
-          <button @click="showModal = false" class="btn-cancel">取消</button>
-          <button @click="handleSave" :disabled="saving" class="btn-confirm">{{ saving ? '保存中...' : '确认' }}</button>
-        </div>
-      </div>
-    </div>
+    <el-dialog v-model="showModal" :title="editingShelf ? '编辑货架' : '添加货架'" width="420px">
+      <el-alert v-if="errMsg" :title="errMsg" type="error" show-icon :closable="false" style="margin-bottom: 12px" />
+      <el-form :model="form" label-width="100px">
+        <el-form-item label="货架编号" required>
+          <el-input v-model="form.shelfCode" placeholder="如 4-1-1" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="form.description" placeholder="如 台式机区" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showModal = false">取消</el-button>
+        <el-button type="primary" @click="handleSave" :loading="saving">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { getShelves, createShelf, updateShelf, deleteShelf } from '@/api/inventory';
-import Pagination from '@/components/common/Pagination.vue';
+import { ElMessageBox } from 'element-plus';
 
 const shelves = ref([]);
 const total = ref(0);
@@ -101,12 +98,12 @@ async function handleSave() {
 }
 
 async function handleDelete(id) {
-  if (!confirm('确定要删除该货架吗？')) return;
   try {
+    await ElMessageBox.confirm('确定要删除该货架吗？', '确认操作', { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' });
     const res = await deleteShelf(id);
     if (res.code === 200) { fetchShelves(); }
-    else { alert(res.message || '删除失败'); }
-  } catch (err) { alert(err.message || '删除失败'); }
+    else { ElMessageBox.alert(res.message || '删除失败', '错误'); }
+  } catch { /* 用户取消 */ }
 }
 
 onMounted(fetchShelves);
@@ -114,25 +111,6 @@ onMounted(fetchShelves);
 
 <style scoped>
 .shelf-page { max-width: 800px; margin: 0 auto; padding: 24px; }
-.shelf-page h2 { margin-bottom: 16px; }
-.btn-add { padding: 8px 16px; background: #1890ff; color: #fff; border: none; border-radius: 4px; font-size: 14px; margin-bottom: 12px; }
-.data-table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 8px; overflow: hidden; font-size: 13px; }
-.data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-.data-table th { background: #fafafa; }
-.btn-link { background: none; border: none; color: #1890ff; cursor: pointer; font-size: 13px; padding: 2px 4px; }
-.btn-danger { color: #ff4d4f; }
-.loading { text-align: center; padding: 60px; color: #999; }
-
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-box { background: #fff; padding: 24px; border-radius: 8px; width: 420px; max-width: 90%; }
-.modal-box h3 { margin-bottom: 16px; }
-.err-msg { background: #fff2f0; color: #ff4d4f; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; font-size: 13px; }
-.form-group { margin-bottom: 12px; }
-.form-group label { display: block; margin-bottom: 4px; font-size: 14px; }
-.required { color: #ff4d4f; }
-.form-group input { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
-.btn-cancel { padding: 8px 16px; background: #fff; border: 1px solid #d9d9d9; border-radius: 4px; }
-.btn-confirm { padding: 8px 16px; background: #1890ff; color: #fff; border: none; border-radius: 4px; }
-.btn-confirm:disabled { background: #ccc; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.page-header h2 { margin: 0; }
 </style>

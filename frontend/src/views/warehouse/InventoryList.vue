@@ -1,49 +1,47 @@
 <template>
-  <div class="inventory-page">
+  <div class="inventory-page" v-loading="loading">
     <div class="page-header">
       <h2>库存总览</h2>
       <div class="header-actions">
-        <router-link to="/warehouse/stock-in" class="btn-action">入库</router-link>
-        <router-link to="/warehouse/stock-out" class="btn-action btn-out">出库</router-link>
+        <el-button type="primary" @click="$router.push('/warehouse/stock-in')">入库</el-button>
+        <el-button type="success" @click="$router.push('/warehouse/stock-out')">出库</el-button>
       </div>
     </div>
 
     <div class="filter-bar">
-      <input v-model="keyword" @keyup.enter="search" type="text" placeholder="搜索商品名称/编号..." class="filter-input" />
-      <select v-model="categoryFilter" @change="search">
-        <option value="">全部类型</option>
-        <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
-      </select>
-      <select v-model="stockStatus" @change="search">
-        <option value="">全部库存</option>
-        <option value="in_stock">有货</option>
-        <option value="out_of_stock">缺货</option>
-        <option value="low_stock">低库存(&lt;5)</option>
-      </select>
+      <el-input v-model="keyword" @keyup.enter="search" placeholder="搜索商品名称/编号..." clearable style="width: 220px" />
+      <el-select v-model="categoryFilter" @change="search" placeholder="全部类型" clearable style="width: 150px">
+        <el-option v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
+      </el-select>
+      <el-select v-model="stockStatus" @change="search" placeholder="全部库存" clearable style="width: 150px">
+        <el-option label="有货" value="in_stock" />
+        <el-option label="缺货" value="out_of_stock" />
+        <el-option label="低库存(&lt;5)" value="low_stock" />
+      </el-select>
     </div>
 
-    <div v-if="loading" class="loading">加载中...</div>
-    <div v-else>
-      <table class="data-table">
-        <thead>
-          <tr><th>ID</th><th>商品名称</th><th>类型</th><th>货架</th><th>库存</th><th>更新时间</th><th>操作</th></tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in inventory" :key="item.id" :class="{ 'row-warn': item.quantity > 0 && item.quantity < 5, 'row-danger': item.quantity === 0 }">
-            <td>{{ item.product_id }}</td>
-            <td>{{ item.product_name }}</td>
-            <td>{{ item.category }}</td>
-            <td>{{ item.shelf_code || '未分配' }}</td>
-            <td :class="{ 'qty-low': item.quantity > 0 && item.quantity < 5, 'qty-zero': item.quantity === 0 }">{{ item.quantity }}</td>
-            <td>{{ formatDate(item.updated_at) }}</td>
-            <td>
-              <router-link :to="`/warehouse/inventory/${item.product_id}`" class="link">详情</router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <Pagination :currentPage="page" :pageSize="pageSize" :total="total" @change="p => { page = p; fetchInventory(); }" />
-    </div>
+    <el-empty v-if="!loading && inventory.length === 0" description="暂无库存数据" />
+
+    <template v-else>
+      <el-table :data="inventory" stripe :row-class-name="tableRowClassName" style="width: 100%">
+        <el-table-column prop="product_id" label="ID" width="70" />
+        <el-table-column prop="product_name" label="商品名称" />
+        <el-table-column prop="category" label="类型" />
+        <el-table-column label="货架"><template #default="{ row }">{{ row.shelf_code || '未分配' }}</template></el-table-column>
+        <el-table-column label="库存">
+          <template #default="{ row }">
+            <span :class="{ 'qty-low': row.quantity > 0 && row.quantity < 5, 'qty-zero': row.quantity === 0 }">{{ row.quantity }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新时间" :formatter="(r) => formatDate(r.updated_at)" />
+        <el-table-column label="操作">
+          <template #default="{ row }">
+            <router-link :to="`/warehouse/inventory/${row.product_id}`"><el-button size="small" type="primary" link>详情</el-button></router-link>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination :current-page="page" :page-size="pageSize" :total="total" @current-change="p => { page = p; fetchInventory(); }" layout="total, prev, pager, next" style="margin-top: 16px; justify-content: center" />
+    </template>
   </div>
 </template>
 
@@ -51,7 +49,6 @@
 import { ref, onMounted } from 'vue';
 import { getInventory } from '@/api/inventory';
 import { getCategories } from '@/api/product';
-import Pagination from '@/components/common/Pagination.vue';
 import { formatDate } from '@/utils/format';
 
 const inventory = ref([]);
@@ -63,6 +60,12 @@ const keyword = ref('');
 const categoryFilter = ref('');
 const stockStatus = ref('');
 const categories = ref([]);
+
+function tableRowClassName({ row }) {
+  if (row.quantity === 0) return 'row-danger';
+  if (row.quantity > 0 && row.quantity < 5) return 'row-warn';
+  return '';
+}
 
 async function fetchInventory() {
   loading.value = true;
@@ -92,18 +95,9 @@ onMounted(async () => {
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .page-header h2 { margin: 0; }
 .header-actions { display: flex; gap: 8px; }
-.btn-action { padding: 8px 18px; background: #1890ff; color: #fff; border-radius: 4px; font-size: 14px; text-decoration: none; }
-.btn-out { background: #52c41a; }
 .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-.filter-input { padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; width: 200px; }
-.filter-bar select { padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
-.data-table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 8px; overflow: hidden; font-size: 13px; }
-.data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-.data-table th { background: #fafafa; }
-.row-warn { background: #fffbe6; }
-.row-danger { background: #fff2f0; }
 .qty-low { color: #faad14; font-weight: bold; }
 .qty-zero { color: #ff4d4f; font-weight: bold; }
-.link { color: #1890ff; }
-.loading { text-align: center; padding: 60px; color: #999; }
+:deep(.row-warn) { background-color: #fffbe6; }
+:deep(.row-danger) { background-color: #fff2f0; }
 </style>

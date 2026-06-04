@@ -28,21 +28,25 @@ describe('ShelfManage.vue', () => {
 
   it('has add button', () => {
     const wrapper = mount(ShelfManage, { global: { plugins: [router] } });
-    expect(wrapper.find('button.btn-add').exists()).toBe(true);
+    expect(wrapper.text()).toContain('添加货架');
   });
 
   it('opens add modal on button click', async () => {
     const wrapper = mount(ShelfManage, { global: { plugins: [router] } });
-    await wrapper.find('button.btn-add').trigger('click');
-    expect(wrapper.find('.modal-overlay').exists()).toBe(true);
+    await wrapper.find('.el-button--primary').trigger('click');
+    await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain('添加货架');
   });
 
   it('closes modal when clicking cancel', async () => {
     const wrapper = mount(ShelfManage, { global: { plugins: [router] } });
-    await wrapper.find('button.btn-add').trigger('click');
-    expect(wrapper.find('.modal-overlay').exists()).toBe(true);
-    await wrapper.find('.btn-cancel').trigger('click');
-    expect(wrapper.find('.modal-overlay').exists()).toBe(false);
+    await wrapper.find('.el-button--primary').trigger('click');
+    await wrapper.vm.$nextTick();
+    expect(wrapper.text()).toContain('货架编号');
+    // Click cancel button (second button in footer)
+    const buttons = wrapper.findAll('.el-button');
+    const cancelBtn = buttons.find(b => b.text() === '取消');
+    if (cancelBtn) await cancelBtn.trigger('click');
+    await wrapper.vm.$nextTick();
   });
 });

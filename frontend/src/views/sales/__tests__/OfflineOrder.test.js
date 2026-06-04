@@ -4,7 +4,6 @@ import { setActivePinia, createPinia } from 'pinia';
 import { createRouter, createWebHistory } from 'vue-router';
 import OfflineOrder from '../OfflineOrder.vue';
 
-// Mock APIs
 vi.mock('@/api/customer', () => ({
   searchCustomers: vi.fn().mockResolvedValue({ code: 200, data: [] }),
 }));
@@ -40,9 +39,7 @@ describe('OfflineOrder.vue', () => {
   });
 
   it('renders the step indicator', () => {
-    const wrapper = mount(OfflineOrder, {
-      global: { plugins: [router] },
-    });
+    const wrapper = mount(OfflineOrder, { global: { plugins: [router] } });
     expect(wrapper.find('h2').text()).toBe('创建线下订单');
     expect(wrapper.text()).toContain('选择顾客');
     expect(wrapper.text()).toContain('添加商品');
@@ -50,28 +47,18 @@ describe('OfflineOrder.vue', () => {
   });
 
   it('starts at step 1 (customer selection)', () => {
-    const wrapper = mount(OfflineOrder, {
-      global: { plugins: [router] },
-    });
-    expect(wrapper.find('.search-input').exists()).toBe(true);
-    expect(wrapper.findComponent({ name: 'router-link' }).exists()).toBe(true);
+    const wrapper = mount(OfflineOrder, { global: { plugins: [router] } });
+    expect(wrapper.text()).toContain('注册新顾客');
   });
 
   it('shows customer search input on step 1', () => {
-    const wrapper = mount(OfflineOrder, {
-      global: { plugins: [router] },
-    });
+    const wrapper = mount(OfflineOrder, { global: { plugins: [router] } });
     const input = wrapper.find('input[placeholder*="搜索顾客"]');
     expect(input.exists()).toBe(true);
   });
 
-  it('has delivery type radio buttons when on step 3', async () => {
-    const wrapper = mount(OfflineOrder, {
-      global: { plugins: [router] },
-    });
-    // Simulate going to step 3 by setting step internally
-    // Since step is ref(1), we can't directly change it from outside
-    // But we can check the component renders properly
-    expect(wrapper.find('.steps-bar').exists()).toBe(true);
+  it('has step indicator with 3 steps', () => {
+    const wrapper = mount(OfflineOrder, { global: { plugins: [router] } });
+    expect(wrapper.find('.el-steps').exists()).toBe(true);
   });
 });

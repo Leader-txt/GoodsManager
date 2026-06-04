@@ -1,47 +1,63 @@
 <template>
-  <header class="app-header">
+  <div class="app-header-wrapper">
     <div class="header-inner">
       <router-link to="/" class="logo">联想旗舰店</router-link>
-      <nav class="nav-links">
-        <router-link to="/">首页</router-link>
-        <router-link to="/products">商品</router-link>
+      <el-menu
+        mode="horizontal"
+        :router="true"
+        :default-active="currentRoute"
+        class="nav-menu"
+        :ellipsis="false"
+      >
+        <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/products">商品</el-menu-item>
+
         <template v-if="auth.isLoggedIn">
-          <router-link v-if="auth.role === 'customer'" to="/orders">我的订单</router-link>
-          <router-link v-if="auth.role === 'customer'" to="/cart" class="cart-link">
-            🛒 购物车
-            <span v-if="cartStore.count > 0" class="cart-badge">{{ cartStore.count }}</span>
-          </router-link>
+          <el-menu-item v-if="auth.role === 'customer'" index="/orders">我的订单</el-menu-item>
+          <el-menu-item v-if="auth.role === 'customer'" index="/cart" class="cart-menu-item">
+            <el-badge :value="cartStore.count" :hidden="cartStore.count === 0" :max="99">
+              购物车
+            </el-badge>
+          </el-menu-item>
+
           <template v-if="auth.role === 'sales'">
-            <router-link to="/sales">销售工作台</router-link>
-            <router-link to="/sales/register">线下注册</router-link>
-            <router-link to="/sales/orders/new">创建订单</router-link>
+            <el-menu-item index="/sales">销售工作台</el-menu-item>
+            <el-menu-item index="/sales/register">线下注册</el-menu-item>
+            <el-menu-item index="/sales/orders/new">创建订单</el-menu-item>
           </template>
+
           <template v-if="auth.role === 'warehouse' || auth.role === 'admin'">
-            <router-link to="/warehouse">库存管理</router-link>
-            <router-link to="/warehouse/shelves">货架管理</router-link>
-            <router-link to="/warehouse/orders">待出库订单</router-link>
+            <el-menu-item index="/warehouse">库存管理</el-menu-item>
+            <el-menu-item index="/warehouse/shelves">货架管理</el-menu-item>
+            <el-menu-item index="/warehouse/orders">待出库订单</el-menu-item>
           </template>
-          <router-link to="/profile">个人信息</router-link>
-          <router-link v-if="auth.role === 'admin'" to="/admin/dashboard">管理后台</router-link>
-          <a href="#" @click.prevent="handleLogout">退出</a>
+
+          <el-menu-item index="/profile">个人信息</el-menu-item>
+          <el-menu-item v-if="auth.role === 'admin'" index="/admin/dashboard">管理后台</el-menu-item>
+          <li class="el-menu-item logout-item" @click="handleLogout">退出</li>
         </template>
+
         <template v-else>
-          <router-link to="/login">登录</router-link>
-          <router-link to="/register">注册</router-link>
+          <el-menu-item index="/login">登录</el-menu-item>
+          <el-menu-item index="/register">注册</el-menu-item>
         </template>
-      </nav>
+      </el-menu>
     </div>
-  </header>
+  </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
-import { useRouter } from 'vue-router';
 
 const auth = useAuthStore();
 const cartStore = useCartStore();
+const route = useRoute();
 const router = useRouter();
+
+const currentRoute = computed(() => route.path);
 
 function handleLogout() {
   auth.logout();
@@ -50,58 +66,47 @@ function handleLogout() {
 </script>
 
 <style scoped>
-.app-header {
-  background: #1890ff;
-  color: #fff;
-  padding: 0 20px;
-  height: 56px;
-  line-height: 56px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.app-header-wrapper {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   position: sticky;
   top: 0;
   z-index: 100;
 }
+
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 100%;
 }
+
 .logo {
-  color: #fff;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  line-height: 56px;
+  color: #1890ff;
+  text-decoration: none;
+  flex-shrink: 0;
+  padding: 0 20px;
+  white-space: nowrap;
 }
-.nav-links a {
-  color: rgba(255,255,255,0.85);
-  margin-left: 20px;
-  line-height: 56px;
+
+.nav-menu {
+  flex: 1;
+  border-bottom: none !important;
 }
-.nav-links a:hover {
-  color: #fff;
+
+.nav-menu .el-menu-item {
+  border-bottom: 2px solid transparent;
 }
-.nav-links a.router-link-active {
-  color: #fff;
-  border-bottom: 2px solid #fff;
+
+.nav-menu .el-menu-item.is-active {
+  border-bottom-color: #1890ff;
+  color: #1890ff;
 }
-.cart-link {
-  position: relative;
-}
-.cart-badge {
-  position: absolute;
-  top: 8px;
-  right: -14px;
-  background: #ff4d4f;
-  color: #fff;
-  font-size: 12px;
-  border-radius: 10px;
-  padding: 0 6px;
-  height: 18px;
-  line-height: 18px;
-  min-width: 18px;
-  text-align: center;
+
+.logout-item {
+  cursor: pointer;
+  color: #f56c6c !important;
 }
 </style>
