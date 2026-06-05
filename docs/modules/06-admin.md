@@ -301,4 +301,4 @@ INSERT INTO `user` (username, password, role) VALUES
 
 ---
 
-*所属模块：管理后台 | 对应目录：`frontend/src/views/admin/`、`backend/src/controllers/admin.controller.js`、`backend/src/services/admin.service.js`、`backend/src/dao/admin.dao.js`*
+*所属模块：管理后台 | 对应目录：`frontend/src/views/admin/`、`backend/src/controllers/admin.controller.js`、`backend/src/services/admin.service.js`（复用 `user.dao.js`、`order.dao.js`、`log.dao.js`）*

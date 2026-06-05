@@ -44,7 +44,7 @@
 
 ```
 GoodsManager/
-├── frontend/                        # 前端项目 (Vue 3)
+├── frontend/                        # 前端项目 (Vue 3 + Element Plus)
 │   ├── public/
 │   ├── src/
 │   │   ├── api/                     # API 请求封装
@@ -56,28 +56,23 @@ GoodsManager/
 │   │   │   ├── user.js              # 用户信息 API
 │   │   │   ├── inventory.js         # 库存 API
 │   │   │   ├── admin.js             # 管理员 API
-│   │   │   └── log.js               # 日志 API
-│   │   ├── assets/                  # 静态资源 (图片、样式)
+│   │   │   └── customer.js          # 顾客搜索 API
 │   │   ├── components/              # 公共组件
 │   │   │   ├── layout/              # 布局组件
-│   │   │   │   ├── AppHeader.vue
-│   │   │   │   ├── AppSidebar.vue
-│   │   │   │   └── AppFooter.vue
+│   │   │   │   └── AppHeader.vue
 │   │   │   ├── product/             # 商品相关组件
 │   │   │   │   ├── ProductCard.vue       # 商品卡片
 │   │   │   │   └── SpecTable.vue         # 规格参数表
-│   │   │   ├── order/               # 订单相关组件
-│   │   │   │   ├── OrderStatusTag.vue    # 订单状态标签
-│   │   │   │   └── LogisticsInfo.vue     # 物流信息展示
-│   │   │   └── common/              # 通用组件
-│   │   │       ├── Pagination.vue
-│   │   │       └── ConfirmDialog.vue
+│   │   │   └── order/               # 订单相关组件
+│   │   │       └── LogisticsInfo.vue     # 物流信息展示
 │   │   ├── router/                  # 路由配置
-│   │   │   └── index.js
+│   │   │   └── index.js             # 25 条路由 + beforeEach 守卫
 │   │   ├── stores/                  # Pinia 状态管理
 │   │   │   ├── auth.js              # 用户登录状态
 │   │   │   ├── cart.js              # 购物车状态
 │   │   │   └── product.js           # 商品浏览状态
+│   │   ├── styles/                  # 样式
+│   │   │   └── element-theme.css    # Element Plus 主题定制
 │   │   ├── utils/                   # 工具函数
 │   │   │   ├── validators.js        # 表单校验
 │   │   │   └── format.js            # 数据格式化
@@ -96,12 +91,25 @@ GoodsManager/
 │   │   │   │   ├── Login.vue             # 登录
 │   │   │   │   ├── Register.vue          # 注册
 │   │   │   │   └── Profile.vue           # 个人信息
+│   │   │   ├── sales/               # 销售模块
+│   │   │   │   ├── SalesDashboard.vue    # 销售工作台
+│   │   │   │   ├── OfflineRegister.vue   # 线下注册顾客
+│   │   │   │   ├── OfflineOrder.vue      # 创建线下订单
+│   │   │   │   └── SalesOrders.vue       # 线下订单列表
+│   │   │   ├── warehouse/           # 仓库模块
+│   │   │   │   ├── InventoryList.vue     # 库存总览
+│   │   │   │   ├── InventoryDetail.vue   # 库存详情
+│   │   │   │   ├── ShelfManage.vue       # 货架管理
+│   │   │   │   ├── StockIn.vue           # 入库操作
+│   │   │   │   ├── StockOut.vue          # 出库操作
+│   │   │   │   └── WarehouseOrders.vue   # 仓库订单管理
 │   │   │   └── admin/               # 管理后台模块
 │   │   │       ├── Dashboard.vue         # 管理首页
 │   │   │       ├── SalesManage.vue       # 销售人员管理
 │   │   │       ├── ProductManage.vue     # 商品管理
-│   │   │       ├── OrderManage.vue       # 订单查看
-│   │   │       └── InventoryLog.vue      # 出入库日志
+│   │   │       ├── OrderManage.vue       # 全部订单查看
+│   │   │       ├── InventoryLog.vue      # 出入库日志
+│   │   │       └── SystemLog.vue         # 系统日志
 │   │   ├── App.vue                  # 根组件
 │   │   └── main.js                  # 入口文件
 │   ├── index.html
@@ -116,15 +124,14 @@ GoodsManager/
 │   │   │   ├── index.js             # 配置入口 (读取 .env)
 │   │   │   └── db.js                # 数据库连接池配置
 │   │   ├── routes/                  # 路由层 — 定义 URL 与控制器映射
-│   │   │   ├── index.js             # 路由汇总
+│   │   │   ├── index.js             # 路由汇总 + 管理后台/系统日志路由
 │   │   │   ├── auth.routes.js       # /api/auth/*
 │   │   │   ├── product.routes.js    # /api/products/*
 │   │   │   ├── order.routes.js      # /api/orders/*
 │   │   │   ├── cart.routes.js       # /api/cart/*
 │   │   │   ├── user.routes.js       # /api/users/*
-│   │   │   ├── inventory.routes.js  # /api/inventory/*
-│   │   │   ├── admin.routes.js      # /api/admin/*
-│   │   │   └── log.routes.js        # /api/logs/*
+│   │   │   ├── customer.routes.js   # /api/customers/*
+│   │   │   └── inventory.routes.js  # /api/shelves + /api/inventory + /api/stock-*
 │   │   ├── middlewares/             # 中间件层 — 请求拦截处理
 │   │   │   ├── auth.js              # JWT 认证中间件
 │   │   │   ├── role.js              # 角色权限校验
@@ -136,6 +143,7 @@ GoodsManager/
 │   │   │   ├── order.controller.js
 │   │   │   ├── cart.controller.js
 │   │   │   ├── user.controller.js
+│   │   │   ├── customer.controller.js
 │   │   │   ├── inventory.controller.js
 │   │   │   ├── admin.controller.js
 │   │   │   └── log.controller.js
@@ -152,10 +160,9 @@ GoodsManager/
 │   │   │   ├── user.dao.js
 │   │   │   ├── product.dao.js
 │   │   │   ├── order.dao.js
+│   │   │   ├── cart.dao.js
 │   │   │   ├── inventory.dao.js
 │   │   │   └── log.dao.js
-│   │   ├── models/                  # 数据模型定义 (可选，JSDoc 注释)
-│   │   │   └── index.js
 │   │   └── utils/                   # 工具函数
 │   │       ├── jwt.js               # JWT 签发与验证
 │   │       ├── password.js          # 密码加密 (bcrypt)
@@ -165,13 +172,15 @@ GoodsManager/
 │   └── package.json
 │
 ├── database/                        # 数据库相关
-│   ├── init.sql                     # 建库建表 SQL
-│   ├── seed.sql                     # 测试数据填充
-│   └── docker-compose.yml           # MySQL Docker 编排
+│   ├── init.sql                     # 建库建表 SQL（含种子数据）
+│   ├── seed.sql                     # 额外测试数据填充
+│   ├── docker-compose.yml           # MySQL Docker 编排
+│   └── my.cnf                       # MySQL 字符集配置
 │
 ├── docs/                            # 文档
-│   ├── Requirement.md
-│   └── Structure.md
+│   ├── prompt.md                    # Vibe Coding 指南
+│   ├── modules/                     # 模块需求文档 (7 个)
+│   └── useage/                      # 用户操作手册 (5 个)
 │
 └── README.md
 ```
@@ -189,32 +198,47 @@ GoodsManager/
 | `/products/:id` | ProductDetail | 公开 | 商品详情 + 规格参数 |
 | `/cart` | CartView | 顾客 | 购物车 |
 | `/checkout` | Checkout | 顾客 | 结算下单 |
-| `/orders` | OrderList | 顾客 | 我的订单 |
-| `/orders/:id` | OrderDetail | 顾客 | 订单详情 |
+| `/orders` | OrderList | 任意 | 我的订单 |
+| `/orders/:id` | OrderDetail | 任意 | 订单详情 |
 | `/login` | Login | 公开 | 登录页 |
 | `/register` | Register | 公开 | 注册页 |
-| `/profile` | Profile | 顾客 | 个人信息/修改地址 |
+| `/profile` | Profile | 任意 | 个人信息/修改地址 |
+| `/sales` | SalesDashboard | 销售 | 销售工作台 |
+| `/sales/register` | OfflineRegister | 销售 | 线下注册顾客 |
+| `/sales/orders/new` | OfflineOrder | 销售 | 创建线下订单 |
+| `/sales/orders` | SalesOrders | 销售 | 线下订单列表 |
+| `/warehouse` | InventoryList | 仓库/管理 | 库存总览 |
+| `/warehouse/shelves` | ShelfManage | 仓库/管理 | 货架管理 |
+| `/warehouse/inventory/:productId` | InventoryDetail | 仓库/管理 | 库存详情 |
+| `/warehouse/stock-in` | StockIn | 仓库/管理 | 入库操作 |
+| `/warehouse/orders` | WarehouseOrders | 仓库/管理 | 仓库待出库订单 |
+| `/warehouse/stock-out` | StockOut | 仓库/管理 | 出库操作 |
 | `/admin/dashboard` | Dashboard | 管理员 | 管理后台首页 |
 | `/admin/sales` | SalesManage | 管理员 | 销售人员管理 |
 | `/admin/products` | ProductManage | 管理员 | 商品管理 |
 | `/admin/orders` | OrderManage | 管理员 | 全部订单查看 |
 | `/admin/inventory-log` | InventoryLog | 管理员 | 出入库日志 |
+| `/admin/system-log` | SystemLog | 管理员 | 系统日志 |
 
 ### 3.2 状态管理 (Pinia)
 
 ```
 stores/
-├── auth.js      — token、当前用户信息、登录/登出方法
-├── cart.js      — 购物车列表、添加/删除/修改数量
-└── product.js   — 当前浏览的商品列表、筛选条件
+├── auth.js      — token、当前用户信息、登录/登出方法，localStorage 持久化
+├── cart.js      — 购物车列表、选中管理、数量调整、金额计算、角标数量
+└── product.js   — 商品列表、分页状态、筛选条件（关键字/分类/品牌/排序）
 ```
 
-### 3.3 API 层封装
+### 3.3 UI 组件库 (Element Plus)
+
+通用 UI 控件（表格、分页、弹窗、标签、表单、徽标等）统一使用 Element Plus 组件库，`main.js` 中全局注册。主题色通过 `styles/element-theme.css` 定制为 `#1890ff`。
+
+### 3.4 API 层封装
 
 所有前端请求统一通过 `api/index.js` 中的 axios 实例发出：
 
-- **请求拦截器**：自动附带 JWT Token（从 Pinia auth store 读取）
-- **响应拦截器**：统一处理错误码；401 时自动跳转登录页
+- **请求拦截器**：自动附带 JWT Token（从 localStorage 读取）
+- **响应拦截器**：统一处理错误码；401 时自动清除登录状态并跳转登录页
 
 ---
 
@@ -308,14 +332,16 @@ stores/
 
 #### 4.3.7 管理模块 (admin)
 
-- 销售人员账号增删
-- 全部订单查看
-- 出入库日志查看
+- 仪表盘统计（今日订单、待处理、缺货商品、销售人员数）
+- 销售人员账号增删、密码重置
+- 全部订单查看、出入库日志查看、系统日志查看
+- 管理后台路由挂载在 `routes/index.js`（非独立路由文件）
 
 #### 4.3.8 日志模块 (log)
 
-- 记录下单、支付、签收、出入库、订单取消等操作
-- 日志查询（按时间、操作人、操作类型筛选）
+- 记录下单、支付、签收、出入库、订单取消等 7 种操作类型
+- 日志写入在业务服务层同事务中完成
+- 日志查询接口挂载在管理后台路由中
 
 ### 4.4 中间件清单
 
@@ -323,7 +349,7 @@ stores/
 |--------|------|
 | `auth.js` | 解析 JWT Token，注入 `req.user`，未登录返回 401 |
 | `role.js` | 接收允许的角色列表，校验 `req.user.role`，不匹配返回 403 |
-| `validator.js` | 基于 Joi 或 express-validator，校验请求体/查询参数 |
+| `validator.js` | 请求参数校验：必填项、数字 ID、订单号格式等 |
 | `errorHandler.js` | 全局 try-catch，统一错误响应格式，避免敏感信息泄露 |
 
 ---
@@ -626,20 +652,6 @@ ORDER_TIMEOUT_HOURS=24
   └──────────┘  └──────────┘  └──────────┘
 ```
 
-### 9.2 各模块代码行数估算
-
-| 模块 | 前端 (Vue) | 后端 (Node.js) | 合计（估算） |
-|------|:--------:|:------------:|:---------:|
-| 01-product | ~350 行 | ~250 行 | ~600 行 |
-| 02-user-auth | ~250 行 | ~200 行 | ~450 行 |
-| 03-cart | ~150 行 | ~120 行 | ~270 行 |
-| 04-order | ~400 行 | ~350 行 | ~750 行 |
-| 05-inventory | ~300 行 | ~250 行 | ~550 行 |
-| 06-admin | ~250 行 | ~200 行 | ~450 行 |
-| 07-log | ~100 行 | ~100 行 | ~200 行 |
-
-> 每个模块（前端 + 后端）均控制在 800 行以内。对于接近上限的模块（如 04-order），可通过拆分组件（如将结算页、订单列表、订单详情独立为子组件）进一步降低单文件行数。
-
 ---
 
-*文档版本：v1.1 | 编写日期：2026-06-03*
+*文档版本：v1.2 | 最后更新：2026-06-05*

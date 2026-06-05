@@ -35,15 +35,15 @@
 - [x] `frontend/src/main.js` — Vue 应用入口（注册 Pinia + Router）
 - [x] `frontend/src/App.vue` — 根组件 + `<router-view>` + AppHeader
 - [x] `frontend/src/api/index.js` — axios 实例 + 拦截器
-- [x] `frontend/src/router/index.js` — 16 条路由 + beforeEach 守卫
+- [x] `frontend/src/router/index.js` — 25 条路由 + beforeEach 守卫
 - [x] `frontend/src/stores/auth.js` — 用户登录状态 (token, user, login/logout)
 - [x] `frontend/src/stores/cart.js` — 购物车状态 (items, count, 增删改查)
 - [x] `frontend/src/stores/product.js` — 商品浏览状态
 - [x] `frontend/src/utils/validators.js` — 手机号/密码/身份证/姓名校验
 - [x] `frontend/src/utils/format.js` — 价格/日期/订单状态格式化
 - [x] `frontend/src/components/layout/AppHeader.vue` — 导航栏 + 角色菜单 + 购物车角标
-- [x] `frontend/src/components/common/Pagination.vue` — 通用分页组件
-- [x] `frontend/src/components/common/ConfirmDialog.vue` — 通用确认弹窗
+- [x] `frontend/src/styles/element-theme.css` — Element Plus 主题定制
+- [x] 引入 Element Plus 组件库，替换自定义通用组件（分页、弹窗等）
 - [x] `npm run build` 构建成功
 
 ---
@@ -117,8 +117,11 @@
 - [x] `Checkout.vue` — 结算页：地址选择 + 支付/提货方式 + 提交
 - [x] `OrderList.vue` — 状态筛选标签 + 倒计时(待支付) + 操作按钮
 - [x] `OrderDetail.vue` — 状态时间线 + 商品明细 + 物流信息
-- [x] `OrderStatusTag.vue` — 订单状态标签组件
 - [x] `LogisticsInfo.vue` — 物流信息展示组件
+- [x] `SalesDashboard.vue` — 销售工作台
+- [x] `OfflineRegister.vue` — 线下注册顾客
+- [x] `OfflineOrder.vue` — 创建线下订单（三步向导）
+- [x] `SalesOrders.vue` — 线下订单记录
 
 ---
 
@@ -132,6 +135,12 @@
 
 ### 5.2 前端
 - [x] `api/inventory.js` — 库存 API 封装
+- [x] `InventoryList.vue` — 库存总览（搜索/筛选/低库存预警）
+- [x] `InventoryDetail.vue` — 单商品库存详情 + 出入库历史
+- [x] `ShelfManage.vue` — 货架增删改查（A-B-C 编码校验）
+- [x] `StockIn.vue` — 入库操作表单
+- [x] `StockOut.vue` — 出库操作（关联订单/手动）
+- [x] `WarehouseOrders.vue` — 仓库待出库订单管理
 
 ---
 
@@ -148,6 +157,7 @@
 - [x] `SalesManage.vue` — 销售人员列表 + 添加弹窗 + 删除 + 重置密码
 - [x] `OrderManage.vue` — 全局订单表格 + 搜索筛选
 - [x] `InventoryLog.vue` — 出入库日志 + 类型/时间筛选
+- [x] `SystemLog.vue` — 系统日志 + 操作类型/时间筛选
 
 ---
 
@@ -176,17 +186,18 @@
 | 阶段 5 | 库存管理 | ✅ 完成 |
 | 阶段 6 | 管理后台 | ✅ 完成 |
 | 阶段 7 | 系统日志 | ✅ 完成 |
+| 重构 | 引入 Element Plus 替换自定义通用组件 | ✅ 完成 |
 
 ### 产出统计
 
 | 类别 | 文件数 |
 |------|:------:|
-| 后端源文件 (`backend/src/`) | 40 |
-| 前端源文件 (`frontend/src/`) | 39 |
-| 数据库文件 (`database/`) | 3 |
-| 文档文件 (`docs/`) | 9 |
-| **合计** | **91** |
+| 后端源文件 (`backend/src/`) | 42 |
+| 前端源文件 (`frontend/src/`) | 48 |
+| 数据库文件 (`database/`) | 4 |
+| 文档文件 (根目录 + `docs/`) | 18 |
+| **合计** | **112** |
 
 ---
 
-*Todo List 版本：v1.0 | 最后更新：2026-06-03*
+*Todo List 版本：v1.1 | 最后更新：2026-06-05*

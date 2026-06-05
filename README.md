@@ -25,6 +25,7 @@
 | 前端框架 | **Vue 3** | Composition API + SFC |
 | 构建工具 | **Vite** | 开发服务器 & 打包 |
 | 状态管理 | **Pinia** | 轻量级响应式状态 |
+| UI 组件库 | **Element Plus** | 表格/分页/弹窗/标签/表单 |
 | HTTP 客户端 | **axios** | 请求拦截 & JWT 注入 |
 | 后端运行时 | **Node.js** | ≥ 18 LTS |
 | 后端框架 | **Express** | RESTful API |
@@ -45,50 +46,59 @@ GoodsManager/
 ├── todoList.md                      # 任务清单与进度
 ├── docs/
 │   ├── prompt.md                    # Vibe Coding Prompt（主 Agent 调度指南）
-│   └── modules/                     # 模块需求文档
-│       ├── 01-product.md
-│       ├── 02-user-auth.md
-│       ├── 03-cart.md
-│       ├── 04-order.md
-│       ├── 05-inventory.md
-│       ├── 06-admin.md
-│       └── 07-log.md
-├── frontend/                        # Vue 3 前端 (39 个源文件)
+│   ├── modules/                     # 模块需求文档
+│   │   ├── 01-product.md
+│   │   ├── 02-user-auth.md
+│   │   ├── 03-cart.md
+│   │   ├── 04-order.md
+│   │   ├── 05-inventory.md
+│   │   ├── 06-admin.md
+│   │   └── 07-log.md
+│   └── useage/                      # 用户操作手册
+│       ├── useage.md                # 系统使用概览
+│       ├── customer.md              # 顾客使用手册
+│       ├── sales.md                 # 销售人员使用手册
+│       ├── warehouse.md             # 仓库操作员使用手册
+│       └── admin.md                 # 管理员使用手册
+├── frontend/                        # Vue 3 前端 (48 个源文件)
 │   ├── index.html
 │   ├── vite.config.js
 │   ├── package.json
 │   └── src/
-│       ├── main.js                  # 入口：注册 Pinia + Router
+│       ├── main.js                  # 入口：注册 Pinia + Router + Element Plus
 │       ├── App.vue                  # 根组件 + AppHeader + <router-view>
-│       ├── api/                     # axios 实例 + 8 个 API 模块
+│       ├── styles/
+│       │   └── element-theme.css    # Element Plus 主题定制
+│       ├── api/                     # axios 实例 + 9 个 API 模块
 │       │   ├── index.js             # 拦截器（注入 Token / 401 跳转）
 │       │   ├── auth.js, user.js, product.js, cart.js
-│       │   ├── order.js, inventory.js, admin.js
+│       │   ├── order.js, inventory.js, admin.js, customer.js
 │       ├── components/
 │       │   ├── layout/AppHeader.vue # 导航栏 + 角色菜单 + 购物车角标
-│       │   ├── common/Pagination.vue, ConfirmDialog.vue
 │       │   ├── product/ProductCard.vue, SpecTable.vue
-│       │   └── order/OrderStatusTag.vue, LogisticsInfo.vue
-│       ├── router/index.js          # 16 条路由 + beforeEach 守卫
+│       │   └── order/LogisticsInfo.vue
+│       ├── router/index.js          # 25 条路由 + beforeEach 守卫
 │       ├── stores/                  # Pinia (auth / cart / product)
 │       ├── utils/                   # validators.js / format.js
-│       └── views/                   # 16 个页面视图
+│       └── views/                   # 21 个页面视图
 │           ├── HomeView.vue
 │           ├── product/ (ProductList, ProductDetail)
 │           ├── cart/ (CartView)
 │           ├── order/ (Checkout, OrderList, OrderDetail)
 │           ├── user/ (Login, Register, Profile)
+│           ├── sales/ (SalesDashboard, OfflineRegister, OfflineOrder, SalesOrders)
+│           ├── warehouse/ (InventoryList, InventoryDetail, ShelfManage, StockIn, StockOut, WarehouseOrders)
 │           └── admin/ (Dashboard, SalesManage, ProductManage, OrderManage, InventoryLog, SystemLog)
-├── backend/                         # Node.js + Express 后端 (40 个源文件)
+├── backend/                         # Node.js + Express 后端 (42 个源文件)
 │   ├── package.json
 │   ├── .env / .env.example
 │   └── src/
 │       ├── server.js                # 启动入口 + node-cron 定时任务
 │       ├── app.js                   # Express 初始化（cors/json/static/routes/errorHandler）
 │       ├── config/ (index.js, db.js)
-│       ├── routes/ (index.js + 6 个模块路由)
+│       ├── routes/ (index.js + 9 个模块路由)
 │       ├── middlewares/ (auth.js, role.js, validator.js, errorHandler.js)
-│       ├── controllers/ (8 个控制器)
+│       ├── controllers/ (9 个控制器)
 │       ├── services/ (8 个服务层)
 │       ├── dao/ (6 个数据访问层)
 │       └── utils/ (jwt.js, password.js, response.js)
@@ -175,6 +185,8 @@ cd frontend && npm run build
 | `POST` | `/api/auth/register` | 顾客注册 |
 | `POST` | `/api/auth/login` | 用户登录 |
 | `GET` | `/api/products` | 商品列表（分页+筛选+排序） |
+| `GET` | `/api/products/categories` | 商品分类列表 |
+| `GET` | `/api/products/brands` | 商品品牌列表 |
 | `GET` | `/api/products/:id` | 商品详情（含规格参数） |
 
 ### 需认证接口
@@ -185,6 +197,7 @@ cd frontend && npm run build
 | `PUT` | `/api/users/phone` | 任意 | 修改手机号 |
 | `PUT` | `/api/users/address` | 任意 | 修改收货地址 |
 | `POST` | `/api/users/offline-register` | sales | 线下注册顾客 |
+| `GET` | `/api/customers/search` | sales | 搜索顾客 |
 | `GET/POST` | `/api/cart` | customer | 购物车列表/加入 |
 | `PUT/DELETE` | `/api/cart/:id` | customer | 修改数量/删除 |
 | `POST` | `/api/orders` | customer | 提交订单 |
@@ -194,16 +207,20 @@ cd frontend && npm run build
 | `PUT` | `/api/orders/:id/cancel` | customer | 取消订单 |
 | `PUT` | `/api/orders/:id/sign` | 任意 | 确认签收 |
 | `POST` | `/api/orders/offline` | sales | 创建线下订单 |
+| `GET` | `/api/orders/sales` | sales | 销售人员订单列表 |
+| `GET` | `/api/orders/warehouse` | warehouse | 仓库待出库订单 |
 | `GET/POST` | `/api/shelves` | warehouse | 货架管理 |
 | `GET` | `/api/inventory` | 任意 | 库存列表 |
 | `POST` | `/api/stock-in` | warehouse | 入库 |
 | `POST` | `/api/stock-out` | warehouse | 出库 |
+| `POST` | `/api/stock-out-batch` | warehouse | 批量出库 |
 
 ### 管理员接口
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | `GET` | `/api/admin/dashboard` | 仪表盘统计 |
+| `GET` | `/api/admin/operators` | 操作员列表 |
 | `GET/POST` | `/api/admin/sales` | 销售人员列表/添加 |
 | `DELETE` | `/api/admin/sales/:id` | 删除销售人员 |
 | `POST` | `/api/admin/sales/:id/reset-password` | 重置密码 |
@@ -238,11 +255,11 @@ cd frontend && npm run build
 
 | 文档 | 适用角色 | 说明 |
 |------|:--------:|------|
+| [系统使用概览](docs/useage/useage.md) | 全部 | 通用操作说明与快速入门 |
 | [顾客使用手册](docs/useage/customer.md) | 顾客 | 浏览商品、下单、购物车、订单查看 |
 | [销售人员使用手册](docs/useage/sales.md) | 销售人员 | 线下注册、线下订单、现场结付 |
 | [仓库操作员使用手册](docs/useage/warehouse.md) | 仓库操作员 | 出入库操作、货架管理、库存查看 |
 | [管理员使用手册](docs/useage/admin.md) | 管理员 | 销售管理、商品管理、全局数据 |
-| [系统使用概览](docs/useage/useage.md) | 全部 | 通用操作说明与快速入门 |
 
 ### 项目文档
 
@@ -250,6 +267,7 @@ cd frontend && npm run build
 - [Structure.md](Structure.md) — 系统架构设计（拓扑、分层、数据库 ER、DDL、部署方案）
 - [todoList.md](todoList.md) — 项目任务清单与开发进度
 - [docs/prompt.md](docs/prompt.md) — Vibe Coding 主 Agent 调度指南
+- [docs/modules/](docs/modules/) — 7 个模块的详细需求与设计文档
 
 ---
 
@@ -280,4 +298,4 @@ routes → middlewares → controllers → services → dao → MySQL
 
 ---
 
-*项目版本：v1.0 | 最后更新：2026-06-03*
+*项目版本：v1.1 | 最后更新：2026-06-05*

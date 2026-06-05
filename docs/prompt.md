@@ -70,12 +70,12 @@ GoodsManager/
 │       ├── main.js
 │       ├── App.vue
 │       ├── api/                     # axios 实例 + 各模块 API 封装
-│       ├── assets/                  # 静态资源
-│       ├── components/              # 公共组件 (layout/product/order/common)
-│       ├── router/                  # 14 条路由 + 路由守卫
+│       ├── styles/                  # Element Plus 主题定制
+│       ├── components/              # 公共组件 (layout/product/order)
+│       ├── router/                  # 25 条路由 + 路由守卫
 │       ├── stores/                  # Pinia (auth/cart/product)
 │       ├── utils/                   # 校验器、格式化工具
-│       └── views/                   # 页面视图 (product/cart/order/user/admin)
+│       └── views/                   # 页面视图 (product/cart/order/user/sales/warehouse/admin)
 ├── backend/                         # Node.js + Express 后端
 │   ├── package.json
 │   ├── .env.example
@@ -83,12 +83,11 @@ GoodsManager/
 │       ├── server.js                # 入口，启动 Express + 注册 cron
 │       ├── app.js                   # Express 应用初始化（中间件、路由挂载）
 │       ├── config/                  # 配置 (db.js, index.js)
-│       ├── routes/                  # 8 个路由文件 + index.js 汇总
+│       ├── routes/                  # 8 个路由文件 + index.js 汇总（含管理后台路由）
 │       ├── middlewares/             # auth.js, role.js, validator.js, errorHandler.js
-│       ├── controllers/             # 8 个控制器（请求解析 & 响应组装）
+│       ├── controllers/             # 9 个控制器（请求解析 & 响应组装）
 │       ├── services/                # 8 个服务（核心业务逻辑 + 事务管理）
-│       ├── dao/                     # 5 个数据访问层（SQL 封装）
-│       ├── models/                  # 数据模型定义 (可选)
+│       ├── dao/                     # 6 个数据访问层（SQL 封装）
 │       └── utils/                   # jwt.js, password.js, response.js
 └── database/                        # 数据库
     ├── init.sql                     # 建库建表 + 预置数据
@@ -183,9 +182,9 @@ routes → middlewares → controllers → services → dao → MySQL
 |:----:|------|--------|
 | 0.1 | 创建前端脚手架 | `frontend/package.json`, `vite.config.js`, `index.html`, `src/main.js`, `src/App.vue` |
 | 0.2 | 创建 axios 实例 | `src/api/index.js`（baseURL、请求/响应拦截器） |
-| 0.3 | 创建路由框架 | `src/router/index.js`（14 条路由占位 + beforeEach 守卫） |
+| 0.3 | 创建路由框架 | `src/router/index.js`（25 条路由占位 + beforeEach 守卫） |
 | 0.4 | 创建 Pinia stores | `src/stores/auth.js`, `src/stores/cart.js`, `src/stores/product.js` |
-| 0.5 | 创建通用组件 | `Pagination.vue`, `ConfirmDialog.vue`, 布局组件 `AppHeader.vue` |
+| 0.5 | 配置 UI 组件库 | 引入 Element Plus，布局组件 `AppHeader.vue` |
 | 0.6 | 创建工具函数 | `src/utils/validators.js`, `src/utils/format.js` |
 | 0.7 | 创建后端脚手架 | `backend/package.json`, `src/server.js`, `src/app.js` |
 | 0.8 | 创建配置层 | `src/config/index.js`, `src/config/db.js`（mysql2 连接池） |
@@ -348,7 +347,7 @@ routes → middlewares → controllers → services → dao → MySQL
 - `Checkout.vue`（结算页：商品确认、地址选择、支付/提货方式、最终库存校验）
 - `OrderList.vue`（状态筛选标签、倒计时显示、操作按钮）
 - `OrderDetail.vue`（状态时间线、商品明细、物流信息）
-- `OrderStatusTag.vue`, `LogisticsInfo.vue` 组件
+- `LogisticsInfo.vue` 组件（订单状态标签使用 Element Plus `el-tag` 实现）
 - `api/order.js`
 
 **订单状态流转**：
@@ -433,7 +432,7 @@ pending → cancelled (超时 24h / 手动取消)
 | A-12| 出入库日志查看 | `GET /api/admin/inventory-logs` |
 
 **后端产出**：
-- `admin.routes.js` + `admin.controller.js` + `admin.service.js` + `admin.dao.js`
+- 管理后台路由挂载在 `routes/index.js` + `admin.controller.js` + `admin.service.js`（复用 `user.dao.js`、`order.dao.js`、`log.dao.js`）
 
 **前端产出**：
 - `Dashboard.vue`（4 张统计卡片 + 最近订单/出入库列表）
@@ -477,7 +476,7 @@ pending → cancelled (超时 24h / 手动取消)
 **管理后台日志查询**：`GET /api/admin/system-logs`（已在阶段 6 中实现查询页面）
 
 **后端产出**：
-- `log.service.js` + `log.dao.js` + `log.controller.js` + `log.routes.js`
+- `log.service.js` + `log.dao.js` + `log.controller.js`（查询路由挂载在 `routes/index.js` 管理后台中）
 
 **关键业务规则**：
 - 日志与业务在同一事务中写入
@@ -578,4 +577,4 @@ cd frontend && npm test
 
 ---
 
-*Prompt 版本：v1.0 | 生成日期：2026-06-03*
+*Prompt 版本：v1.1 | 最后更新：2026-06-05*
